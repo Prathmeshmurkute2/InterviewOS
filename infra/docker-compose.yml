@@ -1,0 +1,24 @@
+version: '3.8'
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: interview-os-db
+    restart: always
+    environment:
+      POSTGRES_USER: interviewos
+      POSTGRES_PASSWORD: devpass
+      POSTGRES_DB: interviewos
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: interview-os-redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+volumes:
+  pgdata:
