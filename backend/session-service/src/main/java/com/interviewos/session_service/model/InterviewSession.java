@@ -29,6 +29,8 @@ public class InterviewSession {
     private String status ="CREATED";
 
     private Double overallScore;
+    private Integer totalQuestions = 5;
+    private Integer questionCount = 0;
 
     @Column(nullable = false, updatable = false)
     private Instant startedAt = Instant.now();
