@@ -1,7 +1,6 @@
 package com.interviewos.session_service.controller;
 
-import com.interviewos.session_service.dto.AnswerSubmitRequest;
-import com.interviewos.session_service.dto.JdUploadRequest;
+import com.interviewos.session_service.dto.*;
 import com.interviewos.session_service.model.InterviewSession;
 import com.interviewos.session_service.model.JobDescription;
 import com.interviewos.session_service.model.SessionQuestion;
@@ -11,6 +10,8 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @AllArgsConstructor
@@ -42,6 +43,18 @@ public class SessionController {
     @PostMapping("/{sessionId}/complete")
     public ResponseEntity<InterviewSession> completeSession(@PathVariable String sessionId) {
         return ResponseEntity.ok(sessionService.completeSession(sessionId));
+    }
+
+    @PostMapping("/hint/{questionId}")
+    public ResponseEntity<Map<String, String>> getHint(@PathVariable String questionId,
+                                                       @RequestBody HintSubmitRequest req) {
+        String hint = sessionService.getHint(questionId, req.getPartialAnswer(), req.getHintsGivenSoFar());
+        return ResponseEntity.ok(Map.of("hint", hint));
+    }
+
+    @PostMapping("/match")
+    public ResponseEntity<OrchestratorMatchResponse> matchResumeToJd(@Valid @RequestBody MatchRequest req) {
+        return ResponseEntity.ok(sessionService.matchResumeToJd(req.getResumeText(), req.getJdText()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

@@ -21,49 +21,65 @@ export default function Signup() {
       login(res.data.token, res.data.id, res.data.name);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data || 'Signup failed');
+      setError(err.response?.data || 'Could not create your account.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-sm w-full max-w-sm space-y-4">
-        <h1 className="text-2xl font-bold text-slate-800">Create account</h1>
+    <div className="min-h-screen bg-ink flex items-center justify-center px-6">
+      <div className="w-full max-w-sm">
+        <p className="font-sans text-sm text-lamp tracking-wide mb-2">InterviewOS</p>
+        <h1 className="font-serif text-3xl text-paper-text mb-8">
+          Start rehearsing
+        </h1>
 
-        <input
-          type="text" placeholder="Name" value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full border rounded-lg px-3 py-2 text-sm"
-          required
-        />
-        <input
-          type="email" placeholder="Email" value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full border rounded-lg px-3 py-2 text-sm"
-          required
-        />
-        <input
-          type="password" placeholder="Password (min 8 chars)" value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full border rounded-lg px-3 py-2 text-sm"
-          required
-        />
+        <form onSubmit={handleSubmit} className="bg-paper rounded-sm p-7 space-y-4 shadow-[0_1px_0_rgba(0,0,0,0.15)]">
+          <div>
+            <label className="block text-xs text-ink-text/60 mb-1">Name</label>
+            <input
+              type="text" value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full bg-transparent border-b border-ink-text/20 pb-2 text-ink-text text-sm focus:outline-none focus:border-lamp"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-ink-text/60 mb-1">Email</label>
+            <input
+              type="email" value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full bg-transparent border-b border-ink-text/20 pb-2 text-ink-text text-sm focus:outline-none focus:border-lamp"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-ink-text/60 mb-1">Password</label>
+            <input
+              type="password" value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-transparent border-b border-ink-text/20 pb-2 text-ink-text text-sm focus:outline-none focus:border-lamp"
+              minLength={8}
+              required
+            />
+            <p className="text-xs text-ink-text/40 mt-1">At least 8 characters</p>
+          </div>
 
-        {error && <p className="text-red-500 text-sm">{String(error)}</p>}
+          {error && <p className="text-clay text-sm">{String(error)}</p>}
 
-        <button
-          type="submit" disabled={loading}
-          className="w-full bg-slate-900 text-white rounded-lg py-2 text-sm font-medium disabled:opacity-50"
-        >
-          {loading ? 'Creating account...' : 'Sign Up'}
-        </button>
+          <button
+            type="submit" disabled={loading}
+            className="w-full bg-ink text-paper-text rounded-sm py-2.5 text-sm font-medium mt-2 hover:bg-lamp hover:text-ink transition-colors disabled:opacity-50"
+          >
+            {loading ? 'Creating account…' : 'Create account'}
+          </button>
+        </form>
 
-        <p className="text-sm text-slate-500 text-center">
-          Already have an account? <Link to="/login" className="text-slate-900 underline">Log in</Link>
+        <p className="text-sm text-paper-text/50 mt-5">
+          Already have an account? <Link to="/login" className="text-lamp hover:underline">Log in</Link>
         </p>
-      </form>
+      </div>
     </div>
   );
 }

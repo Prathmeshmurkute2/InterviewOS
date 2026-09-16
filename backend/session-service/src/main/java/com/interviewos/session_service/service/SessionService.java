@@ -2,6 +2,7 @@ package com.interviewos.session_service.service;
 
 import com.interviewos.session_service.dto.JdUploadRequest;
 import com.interviewos.session_service.dto.OrchestratorEvaluateResponse;
+import com.interviewos.session_service.dto.OrchestratorMatchResponse;
 import com.interviewos.session_service.dto.OrchestratorQuestionResponse;
 import com.interviewos.session_service.model.InterviewSession;
 import com.interviewos.session_service.model.JobDescription;
@@ -126,5 +127,15 @@ public class SessionService {
         session.setStatus("COMPLETED");
         session.setEndedAt(java.time.Instant.now());
         return sessionRepository.save(session);
+    }
+
+    public String getHint(String questionId, String partialAnswer, int hintsGivenSoFar) {
+        SessionQuestion question = questionRepository.findById(UUID.fromString(questionId))
+                .orElseThrow(() -> new IllegalArgumentException("Question not found: " + questionId));
+        return orchestratorClient.getHint(question.getQuestionText(), partialAnswer, hintsGivenSoFar);
+    }
+
+    public OrchestratorMatchResponse matchResumeToJd(String resumeText, String jdText) {
+        return orchestratorClient.matchResumeToJd(resumeText, jdText);
     }
 }
