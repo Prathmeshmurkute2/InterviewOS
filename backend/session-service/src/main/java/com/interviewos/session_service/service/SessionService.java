@@ -1,9 +1,6 @@
 package com.interviewos.session_service.service;
 
-import com.interviewos.session_service.dto.JdUploadRequest;
-import com.interviewos.session_service.dto.OrchestratorEvaluateResponse;
-import com.interviewos.session_service.dto.OrchestratorMatchResponse;
-import com.interviewos.session_service.dto.OrchestratorQuestionResponse;
+import com.interviewos.session_service.dto.*;
 import com.interviewos.session_service.model.InterviewSession;
 import com.interviewos.session_service.model.JobDescription;
 import com.interviewos.session_service.model.SessionQuestion;
@@ -137,5 +134,27 @@ public class SessionService {
 
     public OrchestratorMatchResponse matchResumeToJd(String resumeText, String jdText) {
         return orchestratorClient.matchResumeToJd(resumeText, jdText);
+    }
+
+    public List<SessionSummaryResponse> listSessions(String userId) {
+        List<InterviewSession> sessions = sessionRepository.findByUserId(UUID.fromString(userId));
+
+        return sessions.stream()
+                .sorted((a, b) -> b.getStartedAt().compareTo(a.getStartedAt())) // newest first
+                .map(session -> {
+                    JobDescription jd = jdRepository.findById(session.getJdId()).orElse(null);
+                    return new SessionSummaryResponse(
+                            session.getId(),
+                            jd != null ? jd.getTitle() : "Unknown role",
+                            jd != null ? jd.getCompany() : null,
+                            session.getStatus(),
+                            session.getOverallScore(),
+                            session.getQuestionCount(),
+                            session.getTotalQuestions(),
+                            session.getStartedAt(),
+                            session.getEndedAt()
+                    );
+                })
+                .collect(java.util.stream.Collectors.toList());
     }
 }

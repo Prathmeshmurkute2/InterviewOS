@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -55,6 +56,11 @@ public class SessionController {
     @PostMapping("/match")
     public ResponseEntity<OrchestratorMatchResponse> matchResumeToJd(@Valid @RequestBody MatchRequest req) {
         return ResponseEntity.ok(sessionService.matchResumeToJd(req.getResumeText(), req.getJdText()));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<SessionSummaryResponse>> listSessions(@RequestParam String userId) {
+        return ResponseEntity.ok(sessionService.listSessions(userId));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
