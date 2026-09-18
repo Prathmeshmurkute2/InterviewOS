@@ -6,6 +6,18 @@ Built to close a specific gap: generic practice-question banks don't adapt to th
 
 ---
 
+## Live demo
+
+**[interview-os-5iqq.vercel.app](https://interview-os-5iqq.vercel.app/login)**
+
+> Backend services are hosted on Render's free tier, which spins down after periods of inactivity — the first request after idle time can take 30-60 seconds to wake up. Subsequent requests are fast.
+
+## Screenshots
+
+<img width="920" height="937" alt="image" src="https://github.com/user-attachments/assets/59a735d4-22a6-4ff6-b140-a7f12ad87ba6" />
+
+
+---
 
 ## The problem
 
@@ -67,8 +79,9 @@ flowchart TD
 | Session service | Spring Boot 4, Spring Data JPA, `RestClient` |
 | Agent Orchestrator | Python, FastAPI, Pydantic |
 | LLM | Google Gemini (`google-genai` SDK) |
-| Database | PostgreSQL + pgvector extension |
-| Infra | Docker Compose (Postgres, Redis) |
+| Database | PostgreSQL + pgvector extension (Neon, serverless) |
+| Infra (local) | Docker Compose (Postgres, Redis) |
+| Infra (deployed) | Render (auth-service, session-service, agent-orchestrator — each Dockerized), Vercel (frontend) |
 
 ---
 
@@ -184,6 +197,8 @@ Open `http://localhost:5173`
 - **LLM API resilience:** Gemini occasionally returns transient `503 UNAVAILABLE` errors under load. The orchestrator wraps every LLM call with exponential-backoff retry logic rather than failing the request outright.
 - **JPA `@GeneratedValue` misuse:** an early bug manually set a `@GeneratedValue` primary key instead of a foreign-key-style reference field, which broke Hibernate's insert/update detection — a good reminder to never hand-assign a generated ID.
 - **State machine correctness:** session completion and question-limit checks are enforced server-side (`409 Conflict` on invalid transitions), not just left to the frontend to "behave nicely."
+- **JDBC vs. native Postgres connection strings:** Neon (like most managed Postgres providers) issues connection strings in `postgresql://user:pass@host/db` format. JDBC doesn't accept embedded credentials — the URL, username, and password have to be split into separate config values before Spring Boot's `DataSource` will accept them.
+- **Multi-stage Docker builds for both Spring Boot services:** a Maven+JDK image compiles the JAR in one stage, then only the built JAR is copied into a lightweight JRE-only final image — keeps the deployed image small and avoids shipping build tooling to production.
 
 ---
 
@@ -192,8 +207,7 @@ Open `http://localhost:5173`
 - [ ] Session history / past-attempts view
 - [ ] `agent_traces` observability panel — log every agent call's input, output, and latency for debugging multi-agent behavior
 - [ ] Fine-tuned classifier for answer confidence/structure scoring, layered alongside the LLM-as-judge
-- [ ] Deployment (Render for backend services, Vercel for frontend)
 - [ ] Streaming evaluator feedback via SSE
+- [ ] Custom domain + CI/CD pipeline (currently manual redeploys on Render/Vercel)
 
 ---
-
