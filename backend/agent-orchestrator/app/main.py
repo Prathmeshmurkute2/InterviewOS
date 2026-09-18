@@ -4,7 +4,12 @@ from app.routers import interview, match, traces
 
 app = FastAPI(title="InterviewOS Agent Orchestrator", version="0.1.0")
 
-allow_origins=["http://localhost:5173", "interview-os-5iqq.vercel.app"],
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "https://interview-os-5iqq.vercel.app"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(interview.router)
 app.include_router(match.router)
