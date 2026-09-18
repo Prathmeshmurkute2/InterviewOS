@@ -211,7 +211,3 @@ Open `http://localhost:5173`
 - [ ] Custom domain + CI/CD pipeline (currently manual redeploys on Render/Vercel)
 
 ---
-
-## License
-
-MIT
