@@ -1,7 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sessionApi } from '../api/client';
 import { useAuthStore } from '../store/authStore';
+import { Link } from 'react-router-dom';
+
+function statusBadge(status) {
+  const map = {
+    COMPLETED: 'bg-sage/15 text-sage',
+    IN_PROGRESS: 'bg-lamp/15 text-lamp',
+    CREATED: 'bg-ink-text/10 text-ink-text/50',
+  };
+  return map[status] || 'bg-ink-text/10 text-ink-text/50';
+}
+
+function formatDate(iso) {
+  return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+}
 
 export default function Dashboard() {
   const [title, setTitle] = useState('');
@@ -15,8 +29,18 @@ export default function Dashboard() {
   const [matchLoading, setMatchLoading] = useState(false);
   const [matchError, setMatchError] = useState('');
 
+  const [sessions, setSessions] = useState([]);
+  const [sessionsLoading, setSessionsLoading] = useState(true);
+
   const { userId, name, logout } = useAuthStore();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    sessionApi.get('/sessions', { params: { userId } })
+      .then((res) => setSessions(res.data))
+      .catch(() => setSessions([]))
+      .finally(() => setSessionsLoading(false));
+  }, [userId]);
 
   const handleStart = async (e) => {
     e.preventDefault();
@@ -64,6 +88,44 @@ export default function Dashboard() {
           <button onClick={logout} className="text-sm text-paper-text/40 hover:text-paper-text/70 transition-colors">
             Log out
           </button>
+        </div>
+        <Link to="/traces" className="text-sm text-paper-text/40 hover:text-paper-text/70 transition-colors mr-4">
+          Traces
+        </Link>
+
+        {/* Recent sessions */}
+        <div className="mb-6">
+          <h2 className="font-serif text-lg text-paper-text mb-3">Recent rehearsals</h2>
+
+          {sessionsLoading ? (
+            <p className="text-paper-text/40 text-sm">Loading…</p>
+          ) : sessions.length === 0 ? (
+            <p className="text-paper-text/40 text-sm">No sessions yet — start one below.</p>
+          ) : (
+            <div className="space-y-2">
+              {sessions.slice(0, 5).map((s) => (
+                <div
+                  key={s.id}
+                  className="bg-paper rounded-sm px-4 py-3 flex items-center justify-between"
+                >
+                  <div>
+                    <p className="text-ink-text text-sm font-medium">
+                      {s.jdTitle}{s.company ? ` — ${s.company}` : ''}
+                    </p>
+                    <p className="text-ink-text/40 text-xs mt-0.5">{formatDate(s.startedAt)}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {s.overallScore !== null && (
+                      <span className="font-serif text-lg text-ink-text">{s.overallScore.toFixed(1)}</span>
+                    )}
+                    <span className={`text-xs px-2 py-1 rounded-sm ${statusBadge(s.status)}`}>
+                      {s.status.replace('_', ' ')}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="bg-paper rounded-sm p-8 shadow-[0_1px_0_rgba(0,0,0,0.15)] mb-6">

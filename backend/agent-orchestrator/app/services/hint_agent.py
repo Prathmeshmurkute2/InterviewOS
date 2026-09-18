@@ -1,4 +1,6 @@
+import time
 from app.services.gemini_client import generate
+from app.services.tracing import log_trace
 from app.models.schemas import HintRequest, HintResponse
 
 PROMPT_TEMPLATE = """You are a supportive technical interviewer. The candidate is stuck on this question:
@@ -17,6 +19,7 @@ Output ONLY the hint text, no preamble.
 
 
 def get_hint(req: HintRequest) -> HintResponse:
+    start = time.time()
     partial_line = (
         f"Their attempt so far: {req.partial_answer}" if req.partial_answer else "They haven't attempted an answer yet."
     )
@@ -26,4 +29,7 @@ def get_hint(req: HintRequest) -> HintResponse:
         hint_number=req.hints_given_so_far + 1,
     )
     hint_text = generate(prompt)
-    return HintResponse(hint=hint_text)
+    result = HintResponse(hint=hint_text)
+    latency_ms = int((time.time() - start) * 1000)
+    log_trace("hint", req.model_dump(), result.model_dump(), latency_ms)
+    return result

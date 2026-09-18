@@ -1,6 +1,8 @@
 import json
 import re
+import time
 from app.services.gemini_client import generate
+from app.services.tracing import log_trace
 from app.models.schemas import EvaluateAnswerRequest, EvaluateAnswerResponse
 
 PROMPT_TEMPLATE = """You are an expert technical interviewer evaluating a candidate's answer.
@@ -24,22 +26,24 @@ Score guide: 0-3 = incorrect/very weak, 4-6 = partially correct, 7-8 = solid, 9-
 
 
 def _extract_json(raw_text: str) -> dict:
-    """Gemini sometimes wraps JSON in markdown fences - strip them before parsing."""
     cleaned = re.sub(r"^```(json)?|```$", "", raw_text.strip(), flags=re.MULTILINE).strip()
     return json.loads(cleaned)
 
 
 def evaluate_answer(req: EvaluateAnswerRequest) -> EvaluateAnswerResponse:
+    start = time.time()
     prompt = PROMPT_TEMPLATE.format(question=req.question, answer=req.answer)
     raw = generate(prompt)
     try:
         data = _extract_json(raw)
     except (json.JSONDecodeError, ValueError):
-        # Fallback if the model didn't return clean JSON - fail safe rather than crash
         data = {
             "score": 5,
             "feedback": "Could not parse structured evaluation. Raw response: " + raw[:200],
             "strengths": [],
             "improvements": [],
         }
-    return EvaluateAnswerResponse(**data)
+    result = EvaluateAnswerResponse(**data)
+    latency_ms = int((time.time() - start) * 1000)
+    log_trace("evaluator", req.model_dump(), result.model_dump(), latency_ms)
+    return result

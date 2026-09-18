@@ -1,4 +1,6 @@
+import time
 from app.services.gemini_client import generate
+from app.services.tracing import log_trace
 from app.models.schemas import GenerateQuestionRequest, GenerateQuestionResponse
 
 PROMPT_TEMPLATE = """You are a technical interviewer generating ONE interview question
@@ -19,6 +21,7 @@ Rules:
 
 
 def generate_question(req: GenerateQuestionRequest) -> GenerateQuestionResponse:
+    start = time.time()
     topic_line = f"Focus topic: {req.topic_hint}" if req.topic_hint else ""
     prompt = PROMPT_TEMPLATE.format(
         jd_text=req.jd_text,
@@ -26,8 +29,11 @@ def generate_question(req: GenerateQuestionRequest) -> GenerateQuestionResponse:
         difficulty=req.difficulty,
     )
     question_text = generate(prompt)
-    return GenerateQuestionResponse(
+    result = GenerateQuestionResponse(
         question=question_text,
         topic=req.topic_hint,
         difficulty=req.difficulty,
     )
+    latency_ms = int((time.time() - start) * 1000)
+    log_trace("interviewer", req.model_dump(), result.model_dump(), latency_ms)
+    return result
