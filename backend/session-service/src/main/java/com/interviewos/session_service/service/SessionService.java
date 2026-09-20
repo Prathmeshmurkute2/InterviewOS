@@ -157,4 +157,20 @@ public class SessionService {
                 })
                 .collect(java.util.stream.Collectors.toList());
     }
+
+    public SessionDetailResponse getSessionDetail(String sessionId) {
+        InterviewSession session = sessionRepository.findById(UUID.fromString(sessionId))
+                .orElseThrow(() -> new IllegalArgumentException("Session not found: " + sessionId));
+        JobDescription jd = jdRepository.findById(session.getJdId()).orElse(null);
+        List<SessionQuestion> questions = questionRepository.findBySessionIdOrderByOrderIndex(session.getId());
+
+        return new SessionDetailResponse(
+                session.getId(),
+                jd != null ? jd.getTitle() : "Unknown role",
+                jd != null ? jd.getCompany() : null,
+                session.getStatus(),
+                session.getOverallScore(),
+                questions
+        );
+    }
 }

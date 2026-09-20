@@ -65,7 +65,7 @@ export default function Interview() {
     setLoading(true);
     try {
       const res = await sessionApi.post(`/sessions/${sessionId}/complete`);
-      navigate('/dashboard', { state: { completedScore: res.data.overallScore } });
+      navigate(`/session/${sessionId}/summary`);
     } catch (err) {
       setError(err.response?.data || 'Could not complete the session.');
     } finally {

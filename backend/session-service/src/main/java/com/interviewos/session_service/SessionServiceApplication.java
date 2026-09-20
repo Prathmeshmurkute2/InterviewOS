@@ -10,4 +10,5 @@ public class SessionServiceApplication {
 		SpringApplication.run(SessionServiceApplication.class, args);
 	}
 
+
 }

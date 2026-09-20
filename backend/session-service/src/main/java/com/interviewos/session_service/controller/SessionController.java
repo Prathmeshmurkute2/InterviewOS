@@ -63,6 +63,11 @@ public class SessionController {
         return ResponseEntity.ok(sessionService.listSessions(userId));
     }
 
+    @GetMapping("/{sessionId}/detail")
+    public ResponseEntity<SessionDetailResponse> getSessionDetail(@PathVariable String sessionId) {
+        return ResponseEntity.ok(sessionService.getSessionDetail(sessionId));
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleNotFound(IllegalArgumentException ex){
         return ResponseEntity.badRequest().body(ex.getMessage());
