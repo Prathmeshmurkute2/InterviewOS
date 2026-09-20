@@ -17,7 +17,7 @@ export default function Signup() {
     setError('');
     setLoading(true);
     try {
-      const res = await authApi.post('/auth/register', { name, email, password });
+      const res = await authApi.post('/api/auth/register', { name, email, password });
       login(res.data.token, res.data.id, res.data.name);
       navigate('/dashboard');
     } catch (err) {
