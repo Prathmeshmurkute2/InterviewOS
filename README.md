@@ -8,7 +8,7 @@ Built to close a specific gap: generic practice-question banks don't adapt to th
 
 ## Live demo
 
-**[interview-os-5iqq.vercel.app](https://interview-os-5iqq.vercel.app/login)**
+**[interview-os-5iqq.vercel.app](https://interview-os-5iqq.vercel.app)**
 
 > Backend services are hosted on Render's free tier, which spins down after periods of inactivity — the first request after idle time can take 30-60 seconds to wake up. Subsequent requests are fast.
 
